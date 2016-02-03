@@ -119,7 +119,6 @@ public partial class LightShafts : MonoBehaviour
 	{
 		InitRenderTexture (ref m_SamplePositions, width, height, 0, RenderTextureFormat.ARGB32, false);
 		// Unfortunately can't be a temporary RT if we want random write
-		m_SamplePositions.enableRandomWrite = true;
 		m_SamplePositions.filterMode = FilterMode.Point;
 				
 		Graphics.SetRenderTarget (m_SamplePositions);
