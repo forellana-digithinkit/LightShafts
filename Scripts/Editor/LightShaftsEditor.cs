@@ -149,8 +149,8 @@ namespace LightShafts
 			{
 				EditorGUILayout.PropertyField(brightness, new GUIContent("Brightness"));
 			}
-			// Creates a sphere around the camera, in which the light is not accumulated in. Sometimes useful.
-			// EditorGUILayout.PropertyField (minDistFromCamera, new GUIContent("Min dist from cam"));
+			//Creates a sphere around the camera, in which the light is not accumulated in. Sometimes useful.
+			EditorGUILayout.PropertyField(minDistFromCamera, new GUIContent("Min dist from cam"));
 
 			Label("Attenuation");
 
@@ -185,8 +185,8 @@ namespace LightShafts
 			{
 				if (SystemInfo.graphicsShaderLevel >= 50)
 				{
-					// Maybe not that important to show
-					//EditorGUILayout.PropertyField (showInterpolatedSamples, new GUIContent("Interpolated samples"));
+					//Maybe not that important to show
+					EditorGUILayout.PropertyField(showInterpolatedSamples, new GUIContent("Interpolated samples"));
 					EditorGUILayout.Slider(backgroundFade, 0, 1, new GUIContent("Background fade"));
 				}
 				else
