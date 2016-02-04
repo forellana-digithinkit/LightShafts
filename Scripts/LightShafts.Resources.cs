@@ -71,29 +71,38 @@ namespace LightShafts
 		bool m_DX11Support = false;
 		bool m_MinRequirements = false;
 
+		Mesh m_SpotMesh;
+		float m_SpotMeshNear = -1;
+		float m_SpotMeshFar = -1;
+		float m_SpotMeshAngle = -1;
+		float m_SpotMeshRange = -1;
+
 		void InitLUTs()
 		{
 			if (m_AttenuationCurveTex)
+			{
 				return;
-
+			}
 			m_AttenuationCurveTex = new Texture2D(256, 1, TextureFormat.ARGB32, false, true);
 			m_AttenuationCurveTex.wrapMode = TextureWrapMode.Clamp;
 			m_AttenuationCurveTex.hideFlags = HideFlags.HideAndDontSave;
-
 			if (m_AttenuationCurve == null || m_AttenuationCurve.length == 0)
+			{
 				m_AttenuationCurve = new AnimationCurve(new Keyframe(0, 1), new Keyframe(1, 1));
-
+			}
 			if (m_AttenuationCurveTex)
+			{
 				UpdateLUTs();
+			}
 		}
 
 		public void UpdateLUTs()
 		{
 			InitLUTs();
-
 			if (m_AttenuationCurve == null)
+			{
 				return;
-
+			}
 			for (int i = 0; i < 256; ++i)
 			{
 				float v = Mathf.Clamp(m_AttenuationCurve.Evaluate(i / 255.0f), 0.0f, 1.0f);
@@ -113,12 +122,12 @@ namespace LightShafts
 				if (rt != null)
 				{
 					if (rt.width == width && rt.height == height && rt.depth == depth && rt.format == format)
+					{
 						return;
-
+					}
 					rt.Release();
 					DestroyImmediate(rt);
 				}
-
 				rt = new RenderTexture(width, height, depth, format);
 				rt.hideFlags = HideFlags.HideAndDontSave;
 			}
@@ -129,7 +138,7 @@ namespace LightShafts
 			bool dynamic = (m_ShadowmapMode == LightShaftsShadowmapMode.Dynamic);
 			if (dynamic && m_ShadowmapMode != m_ShadowmapModeOld)
 			{
-				// Destroy static render textures, we only need temp now
+				//Destroy static render textures, we only need temp now
 				if (m_Shadowmap)
 					m_Shadowmap.Release();
 				if (m_ColorFilter)
@@ -148,8 +157,9 @@ namespace LightShafts
 		void ReleaseShadowmap()
 		{
 			if (m_ShadowmapMode == LightShaftsShadowmapMode.Static)
+			{
 				return;
-
+			}
 			RenderTexture.ReleaseTemporary(m_Shadowmap);
 			RenderTexture.ReleaseTemporary(m_ColorFilter);
 		}
@@ -175,7 +185,9 @@ namespace LightShafts
 		void InitMaterial(ref Material material, Shader shader)
 		{
 			if (material || !shader)
+			{
 				return;
+			}
 			material = new Material(shader);
 			material.hideFlags = HideFlags.HideAndDontSave;
 		}
@@ -190,12 +202,6 @@ namespace LightShafts
 			InitMaterial(ref m_InterpolateAlongRaysMaterial, m_InterpolateAlongRaysShader);
 		}
 
-		Mesh m_SpotMesh;
-		float m_SpotMeshNear = -1;
-		float m_SpotMeshFar = -1;
-		float m_SpotMeshAngle = -1;
-		float m_SpotMeshRange = -1;
-
 		void InitSpotFrustumMesh()
 		{
 			if (!m_SpotMesh)
@@ -203,13 +209,11 @@ namespace LightShafts
 				m_SpotMesh = new Mesh();
 				m_SpotMesh.hideFlags = HideFlags.HideAndDontSave;
 			}
-
-			Light l = m_Light;
-			if (m_SpotMeshNear != m_SpotNear || m_SpotMeshFar != m_SpotFar || m_SpotMeshAngle != l.spotAngle || m_SpotMeshRange != l.range)
+			if (m_SpotMeshNear != m_SpotNear || m_SpotMeshFar != m_SpotFar || m_SpotMeshAngle != m_Light.spotAngle || m_SpotMeshRange != m_Light.range)
 			{
-				float far = l.range * m_SpotFar;
-				float near = l.range * m_SpotNear;
-				float tan = Mathf.Tan(l.spotAngle * Mathf.Deg2Rad * 0.5f);
+				float far = m_Light.range * m_SpotFar;
+				float near = m_Light.range * m_SpotNear;
+				float tan = Mathf.Tan(m_Light.spotAngle * Mathf.Deg2Rad * 0.5f);
 				float halfwidthfar = far * tan;
 				float halfwidthnear = near * tan;
 
@@ -233,16 +237,17 @@ namespace LightShafts
 
 				m_SpotMeshNear = m_SpotNear;
 				m_SpotMeshFar = m_SpotFar;
-				m_SpotMeshAngle = l.spotAngle;
-				m_SpotMeshRange = l.range;
+				m_SpotMeshAngle = m_Light.spotAngle;
+				m_SpotMeshRange = m_Light.range;
 			}
 		}
 
 		public void UpdateLightType()
 		{
 			if (m_Light == null)
+			{
 				m_Light = GetComponent<Light>();
-
+			}
 			m_LightType = m_Light.type;
 		}
 
@@ -253,22 +258,20 @@ namespace LightShafts
 				Debug.LogError("LightShafts' " + shader.name + " didn't compile on this platform.");
 				return false;
 			}
-
 			return true;
 		}
 
 		public bool CheckMinRequirements()
 		{
 			m_DX11Support = SystemInfo.graphicsShaderLevel >= 50;
-
 			m_MinRequirements = SystemInfo.graphicsShaderLevel >= 30;
 			m_MinRequirements &= SystemInfo.supportsRenderTextures;
 			m_MinRequirements &= SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RGFloat);
 			m_MinRequirements &= SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RFloat);
-
 			if (!m_MinRequirements)
+			{
 				Debug.LogError("LightShafts require Shader Model 3.0 and render textures (including the RGFloat and RFloat) formats. Disabling.");
-
+			}
 			bool shadersCompile = ShaderCompiles(m_DepthShader) &&
 			ShaderCompiles(m_ColorFilterShader) &&
 			ShaderCompiles(m_CoordShader) &&
@@ -276,21 +279,18 @@ namespace LightShafts
 			ShaderCompiles(m_RaymarchShader) &&
 			ShaderCompiles(m_InterpolateAlongRaysShader) &&
 			ShaderCompiles(m_FinalInterpolationShader);
-
 			if (!shadersCompile)
+			{
 				Debug.LogError("LightShafts require above shaders. Disabling.");
-
+			}
 			m_MinRequirements &= shadersCompile;
-
 			m_SamplePositionsShaderCompiles = m_SamplePositionsShader.isSupported;
-
 			return m_MinRequirements;
 		}
 
 		void InitResources()
 		{
 			UpdateLightType();
-
 			InitMaterials();
 			InitEpipolarTextures();
 			InitLUTs();

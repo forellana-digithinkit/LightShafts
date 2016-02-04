@@ -86,17 +86,18 @@ namespace LightShafts
 		void RenderInterpolationTexture(Vector4 lightPos)
 		{
 			Graphics.SetRenderTarget(m_InterpolationEpi.colorBuffer, m_RaymarchedLightEpi.depthBuffer);
-			if (!m_DX11Support && (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsWebPlayer))
-			{
-				// Looks like in dx9 stencil is not cleared properly with GL.Clear()
-				// Edit: fixed in 4.5, so this hack can be removed
-				m_DepthBreaksMaterial.SetPass(1);
-				RenderQuad();
-			}
-			else
-			{
-				GL.Clear(true, true, new Color(0, 0, 0, 1));
-			}
+			//if (!m_DX11Support && (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsWebPlayer))
+			//{
+			//	// Looks like in dx9 stencil is not cleared properly with GL.Clear()
+			//	// Edit: fixed in 4.5, so this hack can be removed
+			//	m_DepthBreaksMaterial.SetPass(1);
+			//	RenderQuad();
+			//}
+			//else
+			//{
+			//	GL.Clear(true, true, new Color(0, 0, 0, 1));
+			//}
+			GL.Clear(true, true, new Color(0, 0, 0, 1));
 			m_DepthBreaksMaterial.SetFloat("_InterpolationStep", m_InterpolationStep);
 			m_DepthBreaksMaterial.SetFloat("_DepthThreshold", GetDepthThresholdAdjusted());
 			m_DepthBreaksMaterial.SetTexture("_DepthEpi", m_DepthEpi);
@@ -119,7 +120,6 @@ namespace LightShafts
 		void RenderSamplePositions(int width, int height, Vector4 lightPos)
 		{
 			InitRenderTexture(ref m_SamplePositions, width, height, 0, RenderTextureFormat.ARGB32, false);
-			// Unfortunately can't be a temporary RT if we want random write
 			m_SamplePositions.filterMode = FilterMode.Point;
 
 			Graphics.SetRenderTarget(m_SamplePositions);

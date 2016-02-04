@@ -6,8 +6,6 @@ namespace LightShafts
 	[CustomEditor(typeof(LightShafts))]
 	public class LightShaftsEditor : Editor
 	{
-		SerializedObject so;
-
 		SerializedProperty cameras;
 		SerializedProperty shadowmapMode;
 		SerializedProperty size;
@@ -38,37 +36,36 @@ namespace LightShafts
 
 		void OnEnable()
 		{
-			so = new SerializedObject(target);
+			
+			cameras = serializedObject.FindProperty("m_Cameras");
+			shadowmapMode = serializedObject.FindProperty("m_ShadowmapMode");
+			size = serializedObject.FindProperty("m_Size");
+			near = serializedObject.FindProperty("m_SpotNear");
+			far = serializedObject.FindProperty("m_SpotFar");
+			cullingMask = serializedObject.FindProperty("m_CullingMask");
+			colorFilterMask = serializedObject.FindProperty("m_ColorFilterMask");
+			brightness = serializedObject.FindProperty("m_Brightness");
+			brightnessColored = serializedObject.FindProperty("m_BrightnessColored");
+			extinction = serializedObject.FindProperty("m_Extinction");
+			minDistFromCamera = serializedObject.FindProperty("m_MinDistFromCamera");
+			shadowmapRes = serializedObject.FindProperty("m_ShadowmapRes");
+			colored = serializedObject.FindProperty("m_Colored");
+			colorBalance = serializedObject.FindProperty("m_ColorBalance");
+			epipolarLines = serializedObject.FindProperty("m_EpipolarLines");
+			epipolarSamples = serializedObject.FindProperty("m_EpipolarSamples");
+			depthThreshold = serializedObject.FindProperty("m_DepthThreshold");
+			interpolationStep = serializedObject.FindProperty("m_InterpolationStep");
+			showSamples = serializedObject.FindProperty("m_ShowSamples");
+			showInterpolatedSamples = serializedObject.FindProperty("m_ShowInterpolatedSamples");
+			backgroundFade = serializedObject.FindProperty("m_ShowSamplesBackgroundFade");
 
-			cameras = so.FindProperty("m_Cameras");
-			shadowmapMode = so.FindProperty("m_ShadowmapMode");
-			size = so.FindProperty("m_Size");
-			near = so.FindProperty("m_SpotNear");
-			far = so.FindProperty("m_SpotFar");
-			cullingMask = so.FindProperty("m_CullingMask");
-			colorFilterMask = so.FindProperty("m_ColorFilterMask");
-			brightness = so.FindProperty("m_Brightness");
-			brightnessColored = so.FindProperty("m_BrightnessColored");
-			extinction = so.FindProperty("m_Extinction");
-			minDistFromCamera = so.FindProperty("m_MinDistFromCamera");
-			shadowmapRes = so.FindProperty("m_ShadowmapRes");
-			colored = so.FindProperty("m_Colored");
-			colorBalance = so.FindProperty("m_ColorBalance");
-			epipolarLines = so.FindProperty("m_EpipolarLines");
-			epipolarSamples = so.FindProperty("m_EpipolarSamples");
-			depthThreshold = so.FindProperty("m_DepthThreshold");
-			interpolationStep = so.FindProperty("m_InterpolationStep");
-			showSamples = so.FindProperty("m_ShowSamples");
-			showInterpolatedSamples = so.FindProperty("m_ShowInterpolatedSamples");
-			backgroundFade = so.FindProperty("m_ShowSamplesBackgroundFade");
-
-			attenuationCurveOn = so.FindProperty("m_AttenuationCurveOn");
-			attenuationCurve = so.FindProperty("m_AttenuationCurve");
+			attenuationCurveOn = serializedObject.FindProperty("m_AttenuationCurveOn");
+			attenuationCurve = serializedObject.FindProperty("m_AttenuationCurve");
 			if (attenuationCurve.animationCurveValue.length == 0)
 			{
 				attenuationCurve.animationCurveValue = new AnimationCurve(new Keyframe(0, 1.0f), new Keyframe(1, 0.0f));
-				so.ApplyModifiedProperties();
-				(so.targetObject as LightShafts).gameObject.SendMessage("UpdateLUTs");
+				serializedObject.ApplyModifiedProperties();
+				(serializedObject.targetObject as LightShafts).gameObject.SendMessage("UpdateLUTs");
 			}
 		}
 
@@ -91,7 +88,7 @@ namespace LightShafts
 
 		public override void OnInspectorGUI()
 		{
-			so.Update();
+			serializedObject.Update();
 
 			LightShafts effect = target as LightShafts;
 
@@ -194,7 +191,7 @@ namespace LightShafts
 			}
 
 			CheckParamBounds();
-			so.ApplyModifiedProperties();
+			serializedObject.ApplyModifiedProperties();
 			if (updateLUTs)
 				effect.UpdateLUTs();
 			if (updateCameraDepthMode)
