@@ -1,41 +1,40 @@
+using UnityEditor;
+using UnityEngine;
 
-#pragma strict
-
-@CustomEditor (LightShafts)
-
-class LightShaftsEditor extends Editor 
+[CustomEditor(typeof(LightShafts))]
+public class LightShaftsEditor : Editor
 {
-	var so : SerializedObject;	
+	SerializedObject so;
+
+	SerializedProperty cameras;
+	SerializedProperty shadowmapMode;
+	SerializedProperty size;
+	SerializedProperty near;
+	SerializedProperty far;
+	SerializedProperty cullingMask;
+	SerializedProperty colorFilterMask;
+	SerializedProperty brightness;
+	SerializedProperty brightnessColored;
+	SerializedProperty extinction;
+	SerializedProperty minDistFromCamera;
+	SerializedProperty shadowmapRes;
+	SerializedProperty colored;
+	SerializedProperty colorBalance;
+	SerializedProperty epipolarLines;
+	SerializedProperty epipolarSamples;
+	SerializedProperty depthThreshold;
+	SerializedProperty interpolationStep;
+	SerializedProperty showSamples;
+	SerializedProperty showInterpolatedSamples;
+	SerializedProperty backgroundFade;
+	SerializedProperty attenuationCurveOn;
+	SerializedProperty attenuationCurve;
+	GUIContent[] sizesStr = new GUIContent[] { new GUIContent("64"), new GUIContent("128"), new GUIContent("256"), new GUIContent("512"), new GUIContent("1024"), new GUIContent("2048") };
+	int[] sizes = new int[] { 64, 128, 256, 512, 1024, 2048 };
+	GUIContent[] interpolationStepValuesStr =new GUIContent[]{new GUIContent("32"), new GUIContent("16"), new GUIContent("8")};
+	int[] interpolationStepValues   =new int[] { 32, 16, 8 };
 	
-	var cameras : SerializedProperty;
-	var shadowmapMode : SerializedProperty;
-	var size : SerializedProperty;
-	var near : SerializedProperty;
-	var far : SerializedProperty;
-	var cullingMask : SerializedProperty;
-	var colorFilterMask : SerializedProperty;
-	var brightness : SerializedProperty;
-	var brightnessColored : SerializedProperty;
-	var extinction : SerializedProperty;
-	var minDistFromCamera : SerializedProperty;
-	var shadowmapRes : SerializedProperty;
-	var colored : SerializedProperty;
-	var colorBalance : SerializedProperty;
-	var epipolarLines : SerializedProperty;
-	var epipolarSamples : SerializedProperty;
-	var depthThreshold : SerializedProperty;
-	var interpolationStep : SerializedProperty;
-	var showSamples : SerializedProperty;
-	var showInterpolatedSamples : SerializedProperty;
-	var backgroundFade : SerializedProperty;
-	var attenuationCurveOn : SerializedProperty;
-	var attenuationCurve : SerializedProperty;
-	var sizesStr : GUIContent[] = [new GUIContent("64"), new GUIContent("128"), new GUIContent("256"), new GUIContent("512"), new GUIContent("1024"), new GUIContent("2048")];
-	var sizes : int[] = [64, 128, 256, 512, 1024, 2048];
-	var interpolationStepValuesStr : GUIContent[] = [new GUIContent("32"), new GUIContent("16"), new GUIContent("8")];
-	var interpolationStepValues : int[] = [32, 16, 8];
-	
-	function OnEnable () {
+	void OnEnable () {
 		so = new SerializedObject (target);
 			
 		cameras = so.FindProperty("m_Cameras");
@@ -64,34 +63,34 @@ class LightShaftsEditor extends Editor
 		attenuationCurve = so.FindProperty("m_AttenuationCurve");
 		if (attenuationCurve.animationCurveValue.length == 0)
 		{
-			attenuationCurve.animationCurveValue = new AnimationCurve(Keyframe(0, 1.0), Keyframe(1, 0.0));
+			attenuationCurve.animationCurveValue = new AnimationCurve(new Keyframe(0, 1.0f), new Keyframe(1, 0.0f));
 			so.ApplyModifiedProperties ();
 			(so.targetObject as LightShafts).gameObject.SendMessage ("UpdateLUTs");
 		}
 	}
 
-	function Label( text : String)
+	void Label( string text)
 	{
 		EditorGUILayout.Separator();
 		EditorGUILayout.LabelField(text, EditorStyles.boldLabel);
 	}
 
-	function CheckParamBounds()
+	void CheckParamBounds()
 	{
 		depthThreshold.floatValue = Mathf.Max(0, depthThreshold.floatValue);
 		brightness.floatValue = Mathf.Max(0, brightness.floatValue);
 		brightnessColored.floatValue = Mathf.Max(0, brightnessColored.floatValue);
 		minDistFromCamera.floatValue = Mathf.Max(0, minDistFromCamera.floatValue);
-		var minNear : float = 0.05;
+		float minNear = 0.05f;
 		far.floatValue = Mathf.Clamp(far.floatValue, minNear, 1.0f);
 		near.floatValue = Mathf.Clamp(near.floatValue, minNear, far.floatValue);
 	}
-			
-	function OnInspectorGUI ()
+
+	public override void OnInspectorGUI()
 	{
 		so.Update ();
-		
-		var effect : LightShafts = target as LightShafts;
+
+		LightShafts effect  = target as LightShafts;
 
 		if (!effect.CheckMinRequirements())
 		{
@@ -125,7 +124,7 @@ class LightShaftsEditor extends Editor
 
 		EditorGUI.BeginChangeCheck();
 		EditorGUILayout.PropertyField (shadowmapMode, new GUIContent("Shadowmap mode"));
-		if (shadowmapMode.enumValueIndex == LightShaftsShadowmapMode.Static) {
+		if (shadowmapMode.enumValueIndex == (int)LightShaftsShadowmapMode.Static) {
 			if (GUILayout.Button("Update shadowmap") || EditorGUI.EndChangeCheck()) {
 				effect.SetShadowmapDirty();
 				EditorUtility.SetDirty(target);
@@ -155,7 +154,7 @@ class LightShaftsEditor extends Editor
 		if (attenuationCurveOn.boolValue)
 		{
 			EditorGUI.BeginChangeCheck();
-			attenuationCurve.animationCurveValue = EditorGUILayout.CurveField (GUIContent ("Attenuation curve"), attenuationCurve.animationCurveValue, Color.white, Rect (0.0,0.0,1.0,1.0));
+			attenuationCurve.animationCurveValue = EditorGUILayout.CurveField (new GUIContent ("Attenuation curve"), attenuationCurve.animationCurveValue, Color.white, new Rect (0.0f,0.0f,1.0f,1.0f));
 			updateLUTs = EditorGUI.EndChangeCheck();
 		}
 		else
